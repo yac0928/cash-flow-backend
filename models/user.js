@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    is_admin: {
+    isAdmin: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false
@@ -35,7 +35,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'Users'
+    tableName: 'Users',
+    underscored: true
   })
   return User
 }

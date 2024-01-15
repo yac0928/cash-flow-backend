@@ -14,27 +14,26 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Expense.init({
-    id: DataTypes.STRING,
     date: {
       type: DataTypes.DATE,
-      allownull: false
+      allowNull: false
     },
     name: {
       type: DataTypes.STRING,
-      allownull: false
+      allowNull: false
     },
     amount: {
       type: DataTypes.INTEGER,
-      allownull: false
+      allowNull: false
     },
     categoryId: {
       type: DataTypes.INTEGER,
-      allownull: false
+      allowNull: false
     },
     comment: DataTypes.TEXT,
     userId: {
       type: DataTypes.INTEGER,
-      allownull: false
+      allowNull: false
     }
   }, {
     sequelize,
