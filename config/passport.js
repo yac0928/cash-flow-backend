@@ -30,7 +30,7 @@ const jwtOptions = {
 }
 
 passport.use(new JwtStrategy(jwtOptions, (jwtPayload, cb) => {
-  User.findById(jwtPayload.id)
+  User.findByPk(jwtPayload.id)
     .then(user => cb(null, user))
     .catch(err => cb(err))
 }))
