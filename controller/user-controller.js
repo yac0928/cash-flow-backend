@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const { User } = require('../models')
 
 const userController = {
@@ -28,6 +29,23 @@ const userController = {
         res.json({ newUser })
       })
       .catch(err => next(err))
+  },
+  signIn: (req, res, next) => {
+    try {
+      const userData = req.user.toJSON()
+      delete userData.password
+      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' })
+      if (!userData.isFrontend) throw new Error('Please signin with a frontend account')
+      res.json({
+        status: 'success',
+        data: {
+          token,
+          user: userData
+        }
+      })
+    } catch (err) {
+      next(err)
+    }
   }
 }
 module.exports = userController

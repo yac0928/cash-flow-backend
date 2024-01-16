@@ -5,7 +5,10 @@ const router = express.Router()
 const { apiErrorHandler } = require('../middleware/error-handler')
 const detailController = require('../controller/detail-controller')
 const userController = require('../controller/user-controller')
+const { authenticated } = require('../middleware/api-auth')
+const passport = require('passport')
 
+router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 router.post('/signup', userController.signUp)
 
 router.use('/calendar', express.static(path.join(__dirname, '../public')))
