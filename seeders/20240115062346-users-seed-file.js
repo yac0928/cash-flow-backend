@@ -9,7 +9,6 @@ module.exports = {
       email: 'root@example.com',
       password: await bcrypt.hash('12345678', 10),
       is_admin: true,
-      is_frontend: true,
       created_at: new Date(),
       updated_at: new Date()
     }, {
@@ -17,7 +16,6 @@ module.exports = {
       email: 'user1@example.com',
       password: await bcrypt.hash('12345678', 10),
       is_admin: false,
-      is_frontend: false,
       created_at: new Date(),
       updated_at: new Date()
     }], {})

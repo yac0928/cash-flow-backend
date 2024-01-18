@@ -14,6 +14,7 @@ router.post('/signup', userController.signUp)
 router.use('/calendar', express.static(path.join(__dirname, '../public')))
 router.get('/expenses/:eid', authenticated, expenseController.getExpense)
 router.get('/expenses', authenticated, expenseController.getExpenses)
+router.post('/expenses', authenticated, expenseController.postExpense)
 
 router.get('/', (req, res) => res.redirect('/api/calendar'))
 router.use('/', apiErrorHandler)
