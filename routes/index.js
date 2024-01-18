@@ -1,12 +1,15 @@
 const express = require('express')
 const path = require('path')
 const router = express.Router()
+const admin = require('./modules/admin')
 
 const { apiErrorHandler } = require('../middleware/error-handler')
 const expenseController = require('../controller/expense-controller')
 const userController = require('../controller/user-controller')
-const { authenticated } = require('../middleware/api-auth')
+const { authenticated, authenticatedAdmin } = require('../middleware/api-auth')
 const passport = require('passport')
+
+router.use('/admin', authenticated, authenticatedAdmin, admin)
 
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 router.post('/signup', userController.signUp)
