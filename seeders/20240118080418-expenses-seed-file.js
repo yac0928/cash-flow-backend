@@ -17,14 +17,20 @@ module.exports = {
       const randomDate = faker.date.between('2022-01-01T00:00:00.000Z', '2023-12-31T00:00:00.000Z')
       return randomDate.toISOString().split('T')[0]
     }
+    const categories = await queryInterface.sequelize.query('SELECT * FROM Categories', {
+      type: Sequelize.QueryTypes.SELECT
+    })
+    const users = await queryInterface.sequelize.query('SELECT * FROM Users', {
+      type: Sequelize.QueryTypes.SELECT
+    })
     await queryInterface.bulkInsert('Expenses',
       Array.from({ length: 30 }, () => ({
         date: getRandomDate(),
         name: lorem.generateWords(1),
         amount: Math.floor(Math.random() * 5 + 1) * 1000,
-        category_id: Math.floor(Math.random() * 5 + 1), // 待修改
+        category_id: categories[Math.floor(Math.random() * categories.length)].id,
         comment: lorem.generateSentences(3),
-        user_id: Math.floor(Math.random() * 2 + 1), // 待修改
+        user_id: users[Math.floor(Math.random() * users.length)].id,
         created_at: new Date(),
         updated_at: new Date()
       }))
