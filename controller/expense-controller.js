@@ -66,6 +66,17 @@ const expenseController = {
       })
       .then(updatedExpense => res.json({ updatedExpense }))
       .catch(err => next(err))
+  },
+  deleteExpense: (req, res, next) => {
+    const { eid } = req.params
+    return Expense.findByPk(eid)
+      .then(expense => {
+        if (!expense) throw new Error('The expense doesn\'t exist!')
+        if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to delete this expense!')
+        return expense.destroy()
+      })
+      .then(deletedExpense => res.json({ deletedExpense }))
+      .catch(err => next(err))
   }
 }
 module.exports = expenseController
