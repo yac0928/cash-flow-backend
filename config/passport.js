@@ -29,7 +29,7 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET
 }
 
-passport.use(new JwtStrategy(jwtOptions, (jwtPayload, cb) => {
+passport.use(new JwtStrategy(jwtOptions, (jwtPayload, cb) => { // 這裡的jwtPayload是從前端攜帶的token，decoded出來的
   User.findByPk(jwtPayload.id)
     .then(user => cb(null, user))
     .catch(err => cb(err))

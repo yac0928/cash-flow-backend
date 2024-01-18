@@ -44,6 +44,28 @@ const expenseController = {
         res.json({ newExpense })
       })
       .catch(err => next(err))
+  },
+  putExpense: (req, res, next) => {
+    const { eid } = req.params
+    const { date, name, amount, categoryId, comment } = req.body
+    if (!date) throw new Error('Date is required!')
+    if (!name) throw new Error('Name is required!')
+    if (!amount) throw new Error('Amount is required!')
+    if (!categoryId) throw new Error('Category is required!')
+    return Expense.findByPk(eid)
+      .then(expense => {
+        if (!expense) throw new Error('The expense doesn\'t exist!')
+        if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to edit this expense!')
+        return expense.update({
+          date,
+          name,
+          amount,
+          categoryId,
+          comment
+        })
+      })
+      .then(updatedExpense => res.json({ updatedExpense }))
+      .catch(err => next(err))
   }
 }
 module.exports = expenseController

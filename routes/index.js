@@ -12,9 +12,11 @@ router.post('/signin', passport.authenticate('local', { session: false }), userC
 router.post('/signup', userController.signUp)
 
 router.use('/calendar', express.static(path.join(__dirname, '../public')))
+
 router.get('/expenses/:eid', authenticated, expenseController.getExpense)
-router.get('/expenses', authenticated, expenseController.getExpenses)
+router.put('/expenses/:eid', authenticated, expenseController.putExpense)
 router.post('/expenses', authenticated, expenseController.postExpense)
+router.get('/expenses', authenticated, expenseController.getExpenses)
 
 router.get('/', (req, res) => res.redirect('/api/calendar'))
 router.use('/', apiErrorHandler)
