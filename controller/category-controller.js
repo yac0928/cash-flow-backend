@@ -11,6 +11,16 @@ const categoryController = {
     return Category.findByPk(cid)
       .then(category => res.json({ category }))
       .catch(err => next(err))
+  },
+  postCategory: (req, res, next) => {
+    const { name, icon } = req.body
+    if (!name) throw new Error('Name is required!')
+    return Category.create({
+      name,
+      icon
+    })
+      .then(newCategory => res.json({ newCategory }))
+      .catch(err => next(err))
   }
 }
 module.exports = categoryController
