@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      // define association here
+      Expense.belongsTo(models.Category, { foreignKey: 'categoryId' })
+      Expense.belongsTo(models.Payment, { foreignKey: 'paymentId' })
+      Expense.belongsTo(models.User, { foreignKey: 'userId' })
     }
   }
   Expense.init({
@@ -34,10 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    payment_month: {
+    paymentMonth: {
       type: DataTypes.INTEGER
     },
-    payment_day: {
+    paymentDay: {
       type: DataTypes.INTEGER
     },
     comment: DataTypes.TEXT,
