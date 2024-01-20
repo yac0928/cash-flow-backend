@@ -1,5 +1,6 @@
 const { Expense } = require('../models')
 const { Op } = require('sequelize')
+const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
 
 const expenseController = {
   getCalendar: (req, res, next) => {
