@@ -33,6 +33,8 @@ module.exports = {
         amount: Math.floor(Math.random() * 5 + 1) * 1000,
         category_id: categories[Math.floor(Math.random() * categories.length)].id,
         payment_id: payments[Math.floor(Math.random() * payments.length)].id,
+        payment_month: Math.floor(Math.random() * 12 + 1),
+        payment_day: Math.floor(Math.random() * 10 + 1) * 10,
         comment: lorem.generateSentences(3),
         user_id: users[Math.floor(Math.random() * users.length)].id,
         created_at: new Date(),

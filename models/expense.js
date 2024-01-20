@@ -30,6 +30,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    paymentId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    payment_month: {
+      type: DataTypes.INTEGER
+    },
+    payment_day: {
+      type: DataTypes.INTEGER
+    },
     comment: DataTypes.TEXT,
     userId: {
       type: DataTypes.INTEGER,
