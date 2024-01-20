@@ -25,6 +25,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      payment_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       comment: {
         type: Sequelize.TEXT
       },

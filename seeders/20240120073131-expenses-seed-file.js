@@ -23,12 +23,16 @@ module.exports = {
     const users = await queryInterface.sequelize.query('SELECT * FROM Users', {
       type: Sequelize.QueryTypes.SELECT
     })
+    const payments = await queryInterface.sequelize.query('SELECT * FROM Payments', {
+      type: Sequelize.QueryTypes.SELECT
+    })
     await queryInterface.bulkInsert('Expenses',
       Array.from({ length: 30 }, () => ({
         date: getRandomDate(),
         name: lorem.generateWords(1),
         amount: Math.floor(Math.random() * 5 + 1) * 1000,
         category_id: categories[Math.floor(Math.random() * categories.length)].id,
+        payment_id: payments[Math.floor(Math.random() * payments.length)].id,
         comment: lorem.generateSentences(3),
         user_id: users[Math.floor(Math.random() * users.length)].id,
         created_at: new Date(),

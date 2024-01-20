@@ -14,15 +14,16 @@ router.use('/admin', authenticated, authenticatedAdmin, admin)
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 router.post('/signup', userController.signUp)
 
-router.use('/calendar', express.static(path.join(__dirname, '../public')))
+router.use('/calendar_sample', express.static(path.join(__dirname, '../public')))
+router.get('/calendar', authenticated, expenseController.getCalendar)
 
 router.get('/expenses/:eid', authenticated, expenseController.getExpense)
 router.put('/expenses/:eid', authenticated, expenseController.putExpense)
 router.delete('/expenses/:eid', authenticated, expenseController.deleteExpense)
-router.post('/expenses', authenticated, expenseController.postExpense)
 router.get('/expenses', authenticated, expenseController.getExpenses)
+router.post('/expenses', authenticated, expenseController.postExpense)
 
-router.get('/', (req, res) => res.redirect('/api/calendar'))
+router.get('/', (req, res) => res.redirect('/api/calendar_cample'))
 router.use('/', apiErrorHandler)
 
 module.exports = router

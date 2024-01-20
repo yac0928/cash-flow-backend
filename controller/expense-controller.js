@@ -2,6 +2,15 @@ const { Expense } = require('../models')
 const { Op } = require('sequelize')
 
 const expenseController = {
+  getCalendar: (req, res, next) => {
+    return Expense.findAll({
+      where: {
+        userId: req.user.id
+      }
+    })
+      .then(expenses => res.json({ expenses }))
+      .catch(err => next(err))
+  },
   getExpenses: (req, res, next) => {
     const { year, month, date } = req.query
     return Expense.findAll({
