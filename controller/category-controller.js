@@ -21,6 +21,21 @@ const categoryController = {
     })
       .then(newCategory => res.json({ newCategory }))
       .catch(err => next(err))
+  },
+  putCategory: (req, res, next) => {
+    const { cid } = req.params
+    const { name, icon } = req.body
+    if (!name) throw new Error('Name is required!')
+    return Category.findByPk(cid)
+      .then(category => {
+        if (!category) throw new Error('Category does not exist!')
+        return category.update({
+          name,
+          icon
+        })
+      })
+      .then(updatedCategory => res.json({ updatedCategory }))
+      .catch(err => next(err))
   }
 }
 module.exports = categoryController
