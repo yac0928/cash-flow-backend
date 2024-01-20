@@ -36,6 +36,16 @@ const categoryController = {
       })
       .then(updatedCategory => res.json({ updatedCategory }))
       .catch(err => next(err))
+  },
+  deleteCategory: (req, res, next) => {
+    const { cid } = req.params
+    return Category.findByPk(cid)
+      .then(category => {
+        if (!category) throw new Error('Category does not exist!')
+        return category.destroy()
+      })
+      .then(deletedCategory => res.json({ deletedCategory }))
+      .catch(err => next(err))
   }
 }
 module.exports = categoryController
