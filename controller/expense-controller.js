@@ -1,5 +1,6 @@
 const { Expense } = require('../models')
 const { Op } = require('sequelize')
+const { v4: uuidv4 } = require('uuid')
 const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
 
 const expenseController = {
@@ -36,22 +37,33 @@ const expenseController = {
       .catch(err => next(err))
   },
   postExpense: (req, res, next) => {
-    const { date, name, amount, categoryId, comment } = req.body
+    const { date, name, amount, categoryId, paymentId, paymentMonth, comment } = req.body
     const userId = req.user.id
+    const userSubLevel = req.user.Subscription.level
+    const groupId = uuidv4()
+    const YEAR = 1
     if (!date) throw new Error('Date is required!')
     if (!name) throw new Error('Name is required!')
     if (!amount) throw new Error('Amount is required!')
     if (!categoryId) throw new Error('Category is required!')
+    if (!paymentId) throw new Error('PaymentId is required!')
     return Expense.create({
       date,
       name,
       amount,
       categoryId,
+      paymentId,
+      paymentMonth,
       comment,
-      userId // 好像非必填，因為是已經定義的欄位
+      userId, // 非必填，因為是已經定義的欄位
+      group: groupId
     })
       .then(newExpense => {
-        res.json({ newExpense })
+        if (userSubLevel === 'none') return res.json({ newExpense }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
+        return postNextFewYearsExpense(newExpense, YEAR)
+      })
+      .then(newExpenses => {
+        if (newExpenses) res.json({ newExpenses })
       })
       .catch(err => next(err))
   },

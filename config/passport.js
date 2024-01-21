@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const bcrypt = require('bcryptjs')
-const { User } = require('../models/index')
+const { User, Subscription } = require('../models/index')
 
 passport.use(new LocalStrategy(
   {
@@ -30,7 +30,10 @@ const jwtOptions = {
 }
 
 passport.use(new JwtStrategy(jwtOptions, (jwtPayload, cb) => { // 這裡的jwtPayload是從前端攜帶的token，decoded出來的
-  User.findByPk(jwtPayload.id)
+  User.findByPk(jwtPayload.id, {
+    attributes: { exclude: ['password'] },
+    include: [{ model: Subscription }]
+  })
     .then(user => cb(null, user))
     .catch(err => cb(err))
 }))

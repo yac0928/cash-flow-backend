@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       User.hasMany(models.Expense, { foreignKey: 'userId' })
+      User.belongsTo(models.Subscription, { foreignKey: 'subscriptionId' })
     }
   }
   User.init({
@@ -31,6 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false
+    },
+    subscriptionId: {
+      type: DataTypes.INTEGER
     }
   }, {
     sequelize,

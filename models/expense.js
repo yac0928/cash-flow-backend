@@ -42,10 +42,15 @@ module.exports = (sequelize, DataTypes) => {
     paymentDay: {
       type: DataTypes.INTEGER
     },
-    comment: DataTypes.TEXT,
+    comment: {
+      type: DataTypes.TEXT
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    group: {
+      type: DataTypes.STRING
     }
   }, {
     sequelize,

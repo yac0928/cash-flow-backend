@@ -1,6 +1,7 @@
 'use strict'
 const { LoremIpsum } = require('lorem-ipsum')
 const faker = require('faker')
+const { v4: uuidv4 } = require('uuid')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -37,6 +38,7 @@ module.exports = {
         payment_day: Math.floor(Math.random() * 10 + 1) * 10,
         comment: lorem.generateSentences(3),
         user_id: users[Math.floor(Math.random() * users.length)].id,
+        group: uuidv4(),
         created_at: new Date(),
         updated_at: new Date()
       }))
