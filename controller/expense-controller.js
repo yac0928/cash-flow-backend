@@ -1,4 +1,4 @@
-const { Expense } = require('../models')
+const { Expense, Category } = require('../models')
 const { Op } = require('sequelize')
 const { v4: uuidv4 } = require('uuid')
 const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
@@ -14,16 +14,24 @@ const expenseController = {
       .catch(err => next(err))
   },
   getExpenses: (req, res, next) => {
-    const { year, month, date } = req.query
-    return Expense.findAll({
-      where: {
-        userId: req.user.id,
-        date: {
-          [Op.eq]: new Date(`${year}-${month}-${date}`)
-        }
-      }
-    })
-      .then(expenses => res.json({ expenses }))
+    const { year, month, day, categoryId } = req.query
+    return Promise.all([
+      Expense.findAll({
+        where: {
+          userId: req.user.id,
+          date: {
+            [Op.eq]: new Date(`${year}-${month}-${day}`)
+          },
+          ...categoryId ? { categoryId } : {}
+        },
+        include: [Category]
+      }),
+      Category.findAll()
+    ])
+      .then(([expenses, categories]) => {
+        const totalAmount = expenses.reduce((total, expense) => total + expense.amount, 0) // 前端處理user是否訂閱
+        res.json({ expenses, categories, categoryId, totalAmount })
+      })
       .catch(err => next(err))
   },
   getExpense: (req, res, next) => {
