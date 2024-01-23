@@ -40,13 +40,15 @@ const emailController = {
           await transporter.sendMail(mailOptions)
         }
       }
-
       res.status(200).json({
         status: 'success',
         message: 'Emails sent successfully'
       })
     } catch (err) {
-      next(err)
+      res.status(500).json({
+        status: 'error',
+        message: `${err}`
+      })
     }
   }
 }

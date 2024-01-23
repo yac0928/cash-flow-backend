@@ -5,6 +5,8 @@ const express = require('express')
 const routes = require('./routes')
 const passport = require('./config/passport')
 const session = require('express-session')
+// eslint-disable-next-line no-unused-vars
+// const mailSchedule = require('./services/scheduler') // 自動發信系統
 
 const app = express()
 const port = process.env.PORT || 3000
