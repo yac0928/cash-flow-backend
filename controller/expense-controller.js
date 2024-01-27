@@ -86,13 +86,21 @@ const expenseController = {
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to edit this expense!')
-        return expense.update({
-          date,
+        return Expense.findAll({
+          where: {
+            group: expense.group,
+            date: { [Op.gte]: expense.date }
+          }
+        })
+      })
+      .then(expenses => {
+        const updatePromises = expenses.map(e => e.update({
           name,
           amount,
           categoryId,
           comment
-        })
+        }))
+        return Promise.all(updatePromises)
       })
       .then(updatedExpense => res.json({ updatedExpense }))
       .catch(err => next(err))
