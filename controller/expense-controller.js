@@ -46,15 +46,23 @@ const expenseController = {
   },
   postExpense: (req, res, next) => {
     const { date, name, amount, categoryId, paymentId, paymentMonth, comment } = req.body
+    const { year } = req.body
     const userId = req.user.id
     const userSubLevel = req.user.Subscription.level
     const groupId = uuidv4()
-    const YEAR = 1
     if (!date) throw new Error('Date is required!')
     if (!name) throw new Error('Name is required!')
     if (!amount) throw new Error('Amount is required!')
     if (!categoryId) throw new Error('Category is required!')
     if (!paymentId) throw new Error('PaymentId is required!')
+    // 如果沒訂閱||year===0，不用建group，且直接建立一個expense
+    let createGroup = false
+    if (userSubLevel !== 'none') {
+      if (year !== 0) {
+        createGroup = true
+      }
+    }
+    const groupData = createGroup ? { group: groupId } : {}
     return Expense.create({
       date,
       name,
@@ -64,11 +72,11 @@ const expenseController = {
       paymentMonth,
       comment,
       userId, // 非必填，因為是已經定義的欄位
-      group: groupId
+      ...groupData
     })
       .then(newExpense => {
-        if (userSubLevel === 'none') return res.json({ newExpense }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
-        return postNextFewYearsExpense(newExpense, YEAR)
+        if (createGroup === false) return res.json({ newExpense }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
+        return postNextFewYearsExpense(newExpense, year)
       })
       .then(newExpenses => {
         if (newExpenses) res.json({ newExpenses })
