@@ -77,8 +77,7 @@ const expenseController = {
   },
   putExpense: (req, res, next) => {
     const { eid } = req.params
-    const { date, name, amount, categoryId, comment } = req.body
-    if (!date) throw new Error('Date is required!')
+    const { name, amount, categoryId, comment } = req.body
     if (!name) throw new Error('Name is required!')
     if (!amount) throw new Error('Amount is required!')
     if (!categoryId) throw new Error('Category is required!')
@@ -111,10 +110,22 @@ const expenseController = {
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to delete this expense!')
-        return expense.destroy()
+        if (!expense.group) {
+          return expense.destroy()
+            .then(deletedExpense => res.json({ deletedExpense }))
+        }
+        return Expense.findAll({
+          where: {
+            group: expense.group, date: { [Op.gte]: expense.date }
+          }
+        })
+          .then(expenses => {
+            const deletedPromises = expenses.map(e => e.destroy())
+            return Promise.all(deletedPromises)
+          })
+          .then(deletedExpenses => res.json({ deletedExpenses }))
+          .catch(err => next(err))
       })
-      .then(deletedExpense => res.json({ deletedExpense }))
-      .catch(err => next(err))
   }
 }
 module.exports = expenseController
