@@ -85,10 +85,11 @@ const expenseController = {
   },
   putExpense: (req, res, next) => {
     const { eid } = req.params
-    const { name, amount, categoryId, comment } = req.body
+    const { date, name, amount, categoryId, paymentId, comment } = req.body
     if (!name) throw new Error('Name is required!')
     if (!amount) throw new Error('Amount is required!')
     if (!categoryId) throw new Error('Category is required!')
+    if (!paymentId) throw new Error('PaymentId is required!')
     return Expense.findByPk(eid)
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
@@ -105,11 +106,12 @@ const expenseController = {
           name,
           amount,
           categoryId,
+          paymentId,
           comment
         }))
         return Promise.all(updatePromises)
       })
-      .then(updatedExpense => res.json({ updatedExpense }))
+      .then(updatedExpense => res.json({ updatedExpense, date }))
       .catch(err => next(err))
   },
   deleteExpense: (req, res, next) => {
