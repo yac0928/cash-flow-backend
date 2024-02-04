@@ -20,7 +20,7 @@ const expenseController = {
         where: {
           userId: req.user.id,
           date: {
-            [Op.eq]: new Date(`${year}-${month}-${day}`)
+            [Op.eq]: new Date(Date.UTC(year, month - 1, day))
           },
           ...categoryId ? { categoryId } : {}
         },
@@ -36,11 +36,23 @@ const expenseController = {
   },
   getExpense: (req, res, next) => {
     const { eid } = req.params
-    return Expense.findByPk(eid)
+    return Expense.findByPk(eid, { include: [Category] })
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to view this expense!')
         res.json({ expense })
+      })
+      .catch(err => next(err))
+  },
+  editExpense: (req, res, next) => {
+    const { eid } = req.params
+    return Promise.all([
+      Expense.findByPk(eid),
+      Category.findAll({ raw: true })
+    ])
+      .then(([expense, categories]) => {
+        if (!expense) throw new Error('Expense didn\'t exist')
+        res.json({ expense, categories })
       })
       .catch(err => next(err))
   },
