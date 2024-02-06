@@ -36,10 +36,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    paymentMonth: {
+    paymentYears: {
       type: DataTypes.INTEGER
     },
-    paymentDay: {
+    paymentPerMonth: {
       type: DataTypes.INTEGER
     },
     comment: {
