@@ -17,6 +17,8 @@ router.post('/signup', userController.signUp)
 router.use('/calendar_sample', express.static(path.join(__dirname, '../public')))
 router.get('/calendar', authenticated, expenseController.getCalendar)
 
+router.get('/expenses/create', authenticated, expenseController.createExpense)
+router.get('/expenses/:eid/edit', authenticated, expenseController.editExpense)
 router.get('/expenses/:eid', authenticated, expenseController.getExpense)
 router.put('/expenses/:eid', authenticated, expenseController.putExpense)
 router.delete('/expenses/:eid', authenticated, expenseController.deleteExpense)

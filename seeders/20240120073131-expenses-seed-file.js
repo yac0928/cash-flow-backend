@@ -15,7 +15,7 @@ module.exports = {
     //   return randomDate.toISOString().split('T')[0] // 返回形如 'YYYY-MM-DD' 的日期字符串
     // }
     const getRandomDate = () => {
-      const randomDate = faker.date.between('2022-01-01T00:00:00.000Z', '2023-12-31T00:00:00.000Z')
+      const randomDate = faker.date.between('2024-02-01T00:00:00.000Z', '2024-02-29T00:00:00.000Z')
       return randomDate.toISOString().split('T')[0]
     }
     const categories = await queryInterface.sequelize.query('SELECT * FROM Categories', {
@@ -28,7 +28,7 @@ module.exports = {
       type: Sequelize.QueryTypes.SELECT
     })
     await queryInterface.bulkInsert('Expenses',
-      Array.from({ length: 30 }, () => ({
+      Array.from({ length: 150 }, () => ({
         date: getRandomDate(),
         name: lorem.generateWords(1),
         amount: Math.floor(Math.random() * 5 + 1) * 1000,

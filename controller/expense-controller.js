@@ -1,4 +1,4 @@
-const { Expense, Category } = require('../models')
+const { Expense, Category, Payment } = require('../models')
 const { Op } = require('sequelize')
 const { v4: uuidv4 } = require('uuid')
 const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
@@ -36,7 +36,7 @@ const expenseController = {
   },
   getExpense: (req, res, next) => {
     const { eid } = req.params
-    return Expense.findByPk(eid, { include: [Category] })
+    return Expense.findByPk(eid, { include: [Category, Payment] })
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to view this expense!')
@@ -47,12 +47,23 @@ const expenseController = {
   editExpense: (req, res, next) => {
     const { eid } = req.params
     return Promise.all([
-      Expense.findByPk(eid),
-      Category.findAll({ raw: true })
+      Expense.findByPk(eid, { include: [Category, Payment] }),
+      Category.findAll({ raw: true }),
+      Payment.findAll({ raw: true })
     ])
-      .then(([expense, categories]) => {
+      .then(([expense, categories, payments]) => {
         if (!expense) throw new Error('Expense didn\'t exist')
-        res.json({ expense, categories })
+        res.json({ expense, categories, payments })
+      })
+      .catch(err => next(err))
+  },
+  createExpense: (req, res, next) => {
+    return Promise.all([
+      Category.findAll({ raw: true }),
+      Payment.findAll({ raw: true })
+    ])
+      .then(([categories, payments]) => {
+        res.json({ categories, payments })
       })
       .catch(err => next(err))
   },
@@ -86,9 +97,9 @@ const expenseController = {
       userId, // 非必填，因為是已經定義的欄位
       ...groupData
     })
-      .then(newExpense => {
-        if (createGroup === false) return res.json({ newExpense }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
-        return postNextFewYearsExpense(newExpense, year)
+      .then(newExpenses => {
+        if (createGroup === false) return res.json({ newExpenses }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
+        return postNextFewYearsExpense(newExpenses, year)
       })
       .then(newExpenses => {
         if (newExpenses) res.json({ newExpenses })
