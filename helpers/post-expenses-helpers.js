@@ -1,18 +1,18 @@
 const { Expense } = require('../models')
 
-const postNextFewYearsExpense = async (baseExpense, years = 0) => {
+const postNextFewYearsExpense = async (baseExpense, years) => {
   baseExpense = baseExpense.toJSON()
   const baseYear = baseExpense.date.getFullYear()
   const baseMonth = baseExpense.date.getMonth() // 0-11
   const baseDate = baseExpense.date.getDate()
-  const paymentMonth = parseInt(baseExpense.paymentMonth) // x個月扣款一次
-  const amountOfExpenses = years * 12 / paymentMonth - 1 // 扣除第一次(已被加入)
+  const paymentPerMonth = parseInt(baseExpense.paymentPerMonth) // x個月扣款一次
+  const amountOfExpenses = years * 12 / paymentPerMonth - 1 // 扣除第一次(已被加入)
   const newExpenses = [baseExpense]
   let currYear = baseYear
   let currMonth = baseMonth
   let currExpenseDate
   for (let i = 0; i < amountOfExpenses; i++) {
-    currMonth += paymentMonth
+    currMonth += paymentPerMonth
     if (currMonth <= 11) {
       currExpenseDate = new Date(Date.UTC(currYear, currMonth, baseDate))
     } else {

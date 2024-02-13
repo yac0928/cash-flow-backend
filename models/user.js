@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
+      User.hasOne(models.Password, { foreignKey: 'userId' })
       User.hasMany(models.Expense, { foreignKey: 'userId' })
       User.belongsTo(models.Subscription, { foreignKey: 'subscriptionId' })
     }
@@ -22,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING,
       allowNull: false
     },
     isAdmin: {

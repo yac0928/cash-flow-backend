@@ -37,10 +37,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     paymentYears: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     },
     paymentPerMonth: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     },
     comment: {
       type: DataTypes.TEXT

@@ -1,5 +1,4 @@
 'use strict'
-const bcrypt = require('bcryptjs')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,7 +9,6 @@ module.exports = {
     await queryInterface.bulkInsert('Users', [{
       name: 'root',
       email: 'root@example.com',
-      password: await bcrypt.hash('12345678', 10),
       is_admin: true,
       subscription_id: subscriptions[Math.floor(Math.random() * subscriptions.length)].id,
       created_at: new Date(),
@@ -18,7 +16,6 @@ module.exports = {
     }, {
       name: 'user1',
       email: 'user1@example.com',
-      password: await bcrypt.hash('12345678', 10),
       is_admin: false,
       subscription_id: subscriptions[Math.floor(Math.random() * subscriptions.length)].id,
       created_at: new Date(),

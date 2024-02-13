@@ -1,5 +1,4 @@
 const express = require('express')
-const path = require('path')
 const router = express.Router()
 const admin = require('./modules/admin')
 
@@ -14,8 +13,7 @@ router.use('/admin', authenticated, authenticatedAdmin, admin)
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 router.post('/signup', userController.signUp)
 
-router.use('/calendar_sample', express.static(path.join(__dirname, '../public')))
-router.get('/calendar', authenticated, expenseController.getCalendar)
+router.get('/', authenticated, expenseController.getCalendar)
 
 router.get('/expenses/create', authenticated, expenseController.createExpense)
 router.get('/expenses/:eid/edit', authenticated, expenseController.editExpense)

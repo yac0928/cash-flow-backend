@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { User } = require('../models')
+const { User, Password } = require('../models')
 
 const userController = {
   signUp: (req, res, next) => {
@@ -10,24 +10,32 @@ const userController = {
     if (!password) throw new Error('Password is required')
     if (password !== passwordConfirm) throw new Error('Passwords do not match!')
     return User.findOne({
-      where: { email },
-      attributes: { exclude: ['password'] }
+      where: { email }
     })
       .then(user => {
         if (user) throw new Error('The email has been signed up, please select another email!')
-        return bcrypt.hash(req.body.password, 10)
+        return User.create({
+          name,
+          email
+        })
       })
-      .then(hash => User.create({
-        name,
-        email,
-        password: hash
-      })
-      )
       .then(newUser => {
-        newUser = newUser.toJSON()
-        delete newUser.password
+        // 然後創建相應的密碼記錄
+        return bcrypt.hash(password, 10)
+          .then(hash => Password.create({ user_id: newUser.id, password_hash: hash }))
+          .then(() => newUser)
+      })
+      .then(newUser => {
         res.json({ newUser })
       })
+      // 不知道下面的寫法可不可以
+      // .then(newUser => {
+      //   return bcrypt.hash(password, 10)
+      //     .then(hash => {
+      //       Password.create({ user_id: newUser.id, password_hash: hash })
+      //       res.json(newUser)
+      //     })
+      // })
       .catch(err => next(err))
   },
   signIn: (req, res, next) => {

@@ -68,20 +68,19 @@ const expenseController = {
       .catch(err => next(err))
   },
   postExpense: (req, res, next) => {
-    const { date, name, amount, categoryId, paymentId, paymentMonth, comment } = req.body
-    const { year } = req.body
+    const { date, name, amount, categoryId, paymentId, paymentYears, paymentPerMonth, comment } = req.body
     const userId = req.user.id
     const userSubLevel = req.user.Subscription.level
     const groupId = uuidv4()
     if (!date) throw new Error('Date is required!')
     if (!name) throw new Error('Name is required!')
-    if (!amount) throw new Error('Amount is required!')
+    if (amount === null || amount === undefined) throw new Error('Amount is required!') // tricky，(!amount)如果0會失敗
     if (!categoryId) throw new Error('Category is required!')
     if (!paymentId) throw new Error('PaymentId is required!')
     // 如果沒訂閱||year===0，不用建group，且直接建立一個expense
     let createGroup = false
     if (userSubLevel !== 'none') {
-      if (year !== 0) {
+      if (paymentYears > 0) {
         createGroup = true
       }
     }
@@ -92,17 +91,18 @@ const expenseController = {
       amount,
       categoryId,
       paymentId,
-      paymentMonth,
+      paymentYears,
+      paymentPerMonth,
       comment,
       userId, // 非必填，因為是已經定義的欄位
       ...groupData
     })
       .then(newExpenses => {
-        if (createGroup === false) return res.json({ newExpenses }) // 如果條件成立，會跳出TypeError: 循環引用錯誤
-        return postNextFewYearsExpense(newExpenses, year)
-      })
-      .then(newExpenses => {
-        if (newExpenses) res.json({ newExpenses })
+        if (createGroup === false) return res.json({ newExpenses })
+        return postNextFewYearsExpense(newExpenses, paymentYears)
+          .then(newExpenses => {
+            if (newExpenses) res.json({ newExpenses })
+          })
       })
       .catch(err => next(err))
   },
@@ -145,7 +145,7 @@ const expenseController = {
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to delete this expense!')
         if (!expense.group) {
           return expense.destroy()
-            .then(deletedExpense => res.json({ deletedExpense }))
+            .then(deletedExpenses => res.json({ deletedExpenses }))
         }
         return Expense.findAll({
           where: {

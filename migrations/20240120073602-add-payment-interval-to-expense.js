@@ -4,10 +4,12 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn('Expenses', 'payment_years', {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     })
     await queryInterface.addColumn('Expenses', 'payment_per_month', {
-      type: Sequelize.INTEGER
+      type: Sequelize.INTEGER,
+      defaultValue: 0
     })
   },
 
