@@ -34,15 +34,31 @@ const expenseController = {
       })
       .catch(err => next(err))
   },
-  getExpense: (req, res, next) => {
-    const { eid } = req.params
-    return Expense.findByPk(eid, { include: [Category, Payment] })
-      .then(expense => {
-        if (!expense) throw new Error('The expense doesn\'t exist!')
-        if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to view this expense!')
-        res.json({ expense })
+  getExpense: async (req, res, next) => {
+    try {
+      const { eid } = req.params
+      const expense = await Expense.findByPk(eid, { include: [Category, Payment] })
+      if (!expense) {
+        throw new Error('The expense doesn\'t exist!')
+      }
+      if (expense.userId !== req.user.id) {
+        throw new Error('You don\'t have permission to view this expense!')
+      }
+
+      // 找到相同 group 的所有记录，但不包括当前的 expense
+      const expenses = await Expense.findAll({
+        where: {
+          group: expense.group,
+          userId: req.user.id,
+          id: { [Op.ne]: expense.id } // 排除当前 expense
+        },
+        include: [Category, Payment]
       })
-      .catch(err => next(err))
+
+      res.json({ expense, expenses })
+    } catch (err) {
+      next(err)
+    }
   },
   editExpense: (req, res, next) => {
     const { eid } = req.params
