@@ -1,6 +1,7 @@
 const axios = require('axios')
 const cheerio = require('cheerio')
 const { Movie, Screening } = require('../models')
+const { getDate } = require('../helpers/get-date')
 
 const MIRAMAR_URL = 'https://www.miramarcinemas.tw/timetable'
 
@@ -58,7 +59,8 @@ const movieController = {
         const dateBlocks = $(element).find('.block').not('.booking_date_area')
         for (const blockElement of dateBlocks.toArray()) {
           const movieWebId = $(blockElement).attr('class').split(' ')[1]
-          const date = $(blockElement).attr('class').split(' ').pop()
+          const dateString = $(blockElement).attr('class').split(' ').pop()
+          const date = getDate(dateString)
           const room = $(blockElement).find('.room').text().trim().slice(11)
           const movie = await Movie.findByPk(movieWebId, { include: [Screening] })
           const times = []
