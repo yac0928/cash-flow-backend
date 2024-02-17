@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Movie.init({
     webId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false
     },

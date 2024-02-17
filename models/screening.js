@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Screening.init({
-    movieWebId: DataTypes.INTEGER,
+    movieWebId: DataTypes.STRING,
     room: DataTypes.STRING,
     date: DataTypes.DATE,
     time: DataTypes.STRING

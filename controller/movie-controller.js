@@ -60,7 +60,7 @@ const movieController = {
         for (const blockElement of dateBlocks.toArray()) {
           const movieWebId = $(blockElement).attr('class').split(' ')[1]
           const dateString = $(blockElement).attr('class').split(' ').pop()
-          const date = getDate(dateString)
+          const date = getDate(dateString).toISOString()
           const room = $(blockElement).find('.room').text().trim().slice(11)
           const movie = await Movie.findByPk(movieWebId, { include: [Screening] })
           const times = []
@@ -68,7 +68,7 @@ const movieController = {
             times.push($(timeElement).text())
           })
           times.forEach(time => {
-            if (movie && !movie.Screenings.some(screening => screening.date === date && screening.time === time)) {
+            if (!movie || (movie && !movie.Screenings.some(screening => screening.date.toISOString() === date && screening.time === time))) {
               newScreenings.push({
                 movieWebId,
                 date,

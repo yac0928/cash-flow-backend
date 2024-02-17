@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       movie_web_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       room: {
         type: Sequelize.STRING
