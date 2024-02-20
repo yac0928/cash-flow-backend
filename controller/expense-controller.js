@@ -34,6 +34,30 @@ const expenseController = {
       })
       .catch(err => next(err))
   },
+  getExpensesByMonth: (req, res, next) => {
+    const { year, month, categoryId } = req.query
+    return Promise.all([
+      Expense.findAll({
+        where: {
+          userId: req.user.id,
+          date: {
+            [Op.and]: [
+              { [Op.gte]: new Date(Date.UTC(year, month - 1, 1)) },
+              { [Op.lt]: new Date(Date.UTC(year, month, 1)) }
+            ]
+          },
+          ...categoryId ? { categoryId } : {}
+        },
+        include: [Category]
+      }),
+      Category.findAll()
+    ])
+      .then(([expenses, categories]) => {
+        const totalAmount = expenses.reduce((total, expense) => total + expense.amount, 0) // 前端處理user是否訂閱
+        res.json({ expenses, categories, categoryId, totalAmount })
+      })
+      .catch(err => next(err))
+  },
   getExpense: async (req, res, next) => {
     try {
       const { eid } = req.params

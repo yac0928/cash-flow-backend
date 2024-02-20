@@ -23,6 +23,7 @@ router.get('/expenses/:eid', authenticated, expenseController.getExpense)
 router.put('/expenses/:eid', authenticated, expenseController.putExpense)
 router.delete('/expenses/:eid', authenticated, expenseController.deleteExpense)
 router.get('/expenses', authenticated, expenseController.getExpenses)
+router.get('/expenses-by-month', authenticated, expenseController.getExpensesByMonth)
 router.post('/expenses', authenticated, expenseController.postExpense)
 
 router.get('/', authenticated, expenseController.getCalendar)
