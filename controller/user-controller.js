@@ -20,34 +20,22 @@ const userController = {
         })
       })
       .then(newUser => {
-        // 然後創建相應的密碼記錄
         return bcrypt.hash(password, 10)
-          .then(hash => Password.create({ user_id: newUser.id, password_hash: hash }))
+          .then(hash => Password.create({ userId: newUser.id, passwordHash: hash }))
           .then(() => newUser)
       })
       .then(newUser => {
         res.json({ newUser })
       })
-      // 不知道下面的寫法可不可以
-      // .then(newUser => {
-      //   return bcrypt.hash(password, 10)
-      //     .then(hash => {
-      //       Password.create({ user_id: newUser.id, password_hash: hash })
-      //       res.json(newUser)
-      //     })
-      // })
-      .catch(err => next(err))
+      .catch(err => next(new Error(err.message)))
   },
   signIn: (req, res, next) => {
     try {
       const userData = req.user.toJSON()
       const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' })
       res.json({
-        status: 'success',
-        data: {
-          token,
-          user: userData
-        }
+        token,
+        user: userData
       })
     } catch (err) {
       next(err)

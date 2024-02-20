@@ -7,23 +7,15 @@ const expenseController = require('../controller/expense-controller')
 const userController = require('../controller/user-controller')
 const movieController = require('../controller/movie-controller')
 const { authenticated, authenticatedAdmin } = require('../middleware/api-auth')
-const passport = require('passport')
+const { authenticateUser } = require('../middleware/login-auth')
 
 router.use('/admin', authenticated, authenticatedAdmin, admin)
 
-router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
+router.post('/signin', authenticateUser, userController.signIn)
 router.post('/signup', userController.signUp)
 
 router.get('/movies', movieController.getMovies)
-router.post('/movies', async (req, res, next) => {
-  try {
-    const movies = await movieController.postMovies(req, res, next)
-    const screenings = await movieController.postScreenings(req, res, next)
-    res.json({ movies, screenings })
-  } catch (err) {
-    next(err)
-  }
-})
+router.post('/movies', movieController.postMoviesAndScreenings)
 
 router.get('/expenses/create', authenticated, expenseController.createExpense)
 router.get('/expenses/:eid/edit', authenticated, expenseController.editExpense)

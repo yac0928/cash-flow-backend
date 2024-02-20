@@ -1,13 +1,23 @@
 const schedule = require('node-schedule')
-const emailController = require('../controller/email-controller')
+const { postEmails } = require('../utils/emailUtils')
+const { postMovies, postScreenings } = require('../utils/movieUtils')
 
-// 创建定时任务，每天的 00:00 执行
 const mailSchedule = schedule.scheduleJob('0 0 * * *', async () => {
   try {
-    await emailController.postEmail() // 這個程式碼會出錯，因為裡面用到res, next，然而schedule並沒有用到express的路由
+    await postEmails()
   } catch (err) {
     console.error('Error in scheduled task:', err)
   }
 })
 
-module.exports = mailSchedule
+const movieSchedule = schedule.scheduleJob('0 0 * * *', async () => {
+  try {
+    const movies = await postMovies()
+    const screenings = await postScreenings()
+    console.log('Movies and screenings post successfully: ', { movies, screenings })
+  } catch (err) {
+    console.log('Movies and screenings post failed: ', err)
+  }
+})
+
+module.exports = { mailSchedule, movieSchedule }

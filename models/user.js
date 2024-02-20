@@ -31,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     subscriptionId: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      defaultValue: 1
     }
   }, {
     sequelize,
