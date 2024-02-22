@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 
 # 设置环境变量来控制是否执行种子数据填充
-ENV RUN_SEEDERS=false
+ENV RUN_SEEDERS=true
 
 # 使用自定义的 Entrypoint 脚本作为容器入口点
 ENTRYPOINT ["./entrypoint.sh"]
