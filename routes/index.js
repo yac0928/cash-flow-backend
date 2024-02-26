@@ -10,7 +10,10 @@ const categoryController = require('../controller/category-controller')
 const { authenticated, authenticatedAdmin } = require('../middleware/api-auth')
 const { authenticateUser } = require('../middleware/login-auth')
 
+const auth = require('./modules/auth')
+
 router.use('/admin', authenticated, authenticatedAdmin, admin)
+router.use('/auth', auth)
 
 router.post('/signin', authenticateUser, userController.signIn)
 router.post('/signup', userController.signUp)
