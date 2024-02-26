@@ -1,10 +1,11 @@
 {
   "development": {
     "username": "root",
-    "password": "${process.env.DB_PASSWORD}",
+    "password": "oHFAa8qO1ehtuR5xzQG3VNZ9v204W67S",
     "database": "cash_flow",
     "host": "hnd1.clusters.zeabur.com",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "port": 31492
   },
   "test": {
     "username": "root",
@@ -15,9 +16,10 @@
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "mysql-container",
-    "dialect": "mysql"
+    "password": "oHFAa8qO1ehtuR5xzQG3VNZ9v204W67S",
+    "database": "cash_flow",
+    "host": "hnd1.clusters.zeabur.com",
+    "dialect": "mysql",
+    "port": 31492
   }
 }
