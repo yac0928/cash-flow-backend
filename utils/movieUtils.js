@@ -12,6 +12,9 @@ const postMovies = async () => {
     const $ = cheerio.load(html)
     const newMovies = []
 
+    const existingMovies = await Movie.findAll()
+    const existingMovieWebIds = existingMovies.map(movie => movie.webId)
+
     for (const element of $('section:not(#inav, #page_top, .page_title, #footer)').toArray()) {
       const name = $(element).find('.title').text().trim()
       const nameEn = $(element).find('.title_en').text().trim()
@@ -20,9 +23,16 @@ const postMovies = async () => {
       const posterUrl = $(element).find('img').attr('src')
       const movieDetailUrl = $(element).find('.btn_link').attr('href')
       const webId = movieDetailUrl && movieDetailUrl.slice(17, 27)
-
-      const existingMovie = await Movie.findByPk(webId)
-      if (!existingMovie) {
+      const existingMovie = existingMovies.find(movie => movie.webId === webId)
+      if (existingMovie) {
+        if (existingMovie.movieDetailUrl !== movieDetailUrl) {
+          await Movie.update(
+            { movieDetailUrl },
+            { where: { webId } }
+          )
+        }
+        existingMovieWebIds.splice(existingMovieWebIds.indexOf(webId), 1)
+      } else {
         newMovies.push({
           webId,
           name,
@@ -34,7 +44,9 @@ const postMovies = async () => {
         })
       }
     }
-
+    for (const webId of existingMovieWebIds) {
+      await Movie.destroy({ where: { webId } })
+    }
     const movies = await Movie.bulkCreate(newMovies)
     return movies
   } catch (err) {
@@ -48,6 +60,12 @@ const postScreenings = async () => {
     const html = response.data
     const $ = cheerio.load(html)
     const newScreenings = []
+
+    const existingScreenings = await Screening.findAll()
+    const existingScreeningsMap = existingScreenings.reduce((acc, screening) => {
+      acc[`${screening.movieWebId}-${screening.date.toISOString()}-${screening.time}`] = screening.id
+      return acc
+    }, {})
 
     for (const element of $('section:not(#inav, #page_top, .page_title, #footer)').toArray()) {
       const dateBlocks = $(element).find('.block').not('.booking_date_area')
@@ -69,9 +87,14 @@ const postScreenings = async () => {
               room,
               time
             })
+          } else {
+            delete existingScreeningsMap[`${movieWebId}-${date}-${time}`]
           }
         })
       }
+    }
+    for (const screeningId of Object.values(existingScreeningsMap)) {
+      await Screening.destroy({ where: { id: screeningId } })
     }
 
     const screenings = await Screening.bulkCreate(newScreenings)
