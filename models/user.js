@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.Password, { foreignKey: 'userId' })
       User.hasMany(models.Expense, { foreignKey: 'userId' })
       User.belongsTo(models.Subscription, { foreignKey: 'subscriptionId' })
+      User.belongsToMany(models.Category, {
+        through: models.UserCategory,
+        foreignKey: 'userId',
+        as: 'Categories'
+      })
     }
   }
   User.init({

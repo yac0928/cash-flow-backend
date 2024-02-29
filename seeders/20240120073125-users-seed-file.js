@@ -3,21 +3,25 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const subscriptions = await queryInterface.sequelize.query('SELECT * FROM Subscriptions', {
-      type: Sequelize.QueryTypes.SELECT
-    })
     await queryInterface.bulkInsert('Users', [{
       name: 'root',
       email: 'root@example.com',
       is_admin: true,
-      subscription_id: subscriptions[Math.floor(Math.random() * subscriptions.length)].id,
+      subscription_id: 5,
       created_at: new Date(),
       updated_at: new Date()
     }, {
       name: 'user1',
       email: 'user1@example.com',
       is_admin: false,
-      subscription_id: subscriptions[Math.floor(Math.random() * subscriptions.length)].id,
+      subscription_id: 1,
+      created_at: new Date(),
+      updated_at: new Date()
+    }, {
+      name: '12345678',
+      email: '12345678',
+      is_admin: true,
+      subscription_id: 4,
       created_at: new Date(),
       updated_at: new Date()
     }], {})
