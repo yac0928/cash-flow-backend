@@ -1,11 +1,10 @@
 {
   "development": {
     "username": "root",
-    "password": "oHFAa8qO1ehtuR5xzQG3VNZ9v204W67S",
+    "password": "password",
     "database": "cash_flow",
-    "host": "hnd1.clusters.zeabur.com",
-    "dialect": "mysql",
-    "port": 31492
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   },
   "test": {
     "username": "root",

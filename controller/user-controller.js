@@ -2,6 +2,9 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { User, Password } = require('../models')
 
+// const baseUrl = 'http://localhost:5173'
+const baseUrl = 'https://cash-flow.zeabur.app'
+
 const userController = {
   signUp: (req, res, next) => {
     const { name, email, password, passwordConfirm } = req.body
@@ -37,6 +40,16 @@ const userController = {
         token,
         user: userData
       })
+    } catch (err) {
+      next(err)
+    }
+  },
+  googleSignIn: (req, res, next) => {
+    try {
+      const userData = req.user.toJSON()
+      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '1d' })
+      const redirectUrl = `${baseUrl}/?token=${token}&user=${JSON.stringify(userData)}`
+      res.redirect(redirectUrl)
     } catch (err) {
       next(err)
     }

@@ -26,12 +26,13 @@ passport.use(new GoogleStrategy({
   try {
     const email = profile.emails[0].value
     const name = profile.displayName
-    let user = await User.findOne({ where: { email } })
+    let user = await User.findOne({ where: { email }, include: [Subscription] })
     if (!user) {
       user = await User.create({
         name,
         email
       })
+      user = await User.findByPk(user.id, { include: [Subscription] })
       const randomPwd = Math.random().toString(36).slice(-8)
       const hash = await bcrypt.hash(randomPwd, 10)
       await Password.create({
