@@ -36,7 +36,7 @@ const userController = {
   signIn: (req, res, next) => {
     try {
       const userData = req.user.toJSON()
-      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '1d' })
+      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '30d' })
       res.json({
         token,
         user: userData

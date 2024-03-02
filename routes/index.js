@@ -7,6 +7,7 @@ const expenseController = require('../controller/expense-controller')
 const userController = require('../controller/user-controller')
 const movieController = require('../controller/movie-controller')
 const categoryController = require('../controller/category-controller')
+const aiController = require('../controller/ai-controller')
 const { authenticated, authenticatedAdmin } = require('../middleware/api-auth')
 const { authenticateUser } = require('../middleware/login-auth')
 
@@ -17,6 +18,16 @@ router.use('/auth', auth)
 
 router.post('/signin', authenticateUser, userController.signIn)
 router.post('/signup', userController.signUp)
+
+router.post('/user-input', authenticated, async (req, res, next) => {
+  const userInput = req.body.input
+  try {
+    const result = await aiController.processUserInput(userInput, req.user)
+    res.json(result)
+  } catch (error) {
+    next(error)
+  }
+})
 
 router.get('/movies', movieController.getMovies)
 router.post('/movies', movieController.postMoviesAndScreenings)
