@@ -19,11 +19,11 @@ router.use('/auth', auth)
 router.post('/signin', authenticateUser, userController.signIn)
 router.post('/signup', userController.signUp)
 
-router.post('/user-input', authenticated, async (req, res, next) => {
-  const userInput = req.body.input
+router.post('/user-ai-input', authenticated, async (req, res, next) => {
+  const userInput = req.body.userInput
   try {
-    const result = await aiController.processUserInput(userInput, req.user)
-    res.json(result)
+    const outputMessages = await aiController.processUserInput(userInput, req.user)
+    res.json({ outputMessages })
   } catch (error) {
     next(error)
   }

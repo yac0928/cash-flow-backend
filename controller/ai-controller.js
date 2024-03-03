@@ -101,51 +101,6 @@ async function callFunction (functionCall, Currentuser) {
       throw new Error('無法識別API功能為新增或查詢')
   }
 }
-const aiController = {
-  userTempMessages: {},
-
-  processUserInput: async (userInput, Currentuser) => {
-    if (!aiController.userTempMessages[Currentuser.id]) {
-      aiController.userTempMessages[Currentuser.id] = []
-    }
-    let currentUserTempMessages = aiController.userTempMessages[Currentuser.id]
-    console.log(aiController.userTempMessages)
-    currentUserTempMessages.push({ role: 'user', content: userInput })
-    const messages = [
-      {
-        role: 'system',
-        content:
-          "You're a cash-flow app assistant, you can search or create expenses. Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous. If the user's request is complete, confirm the function you're going to execute with the user first, if the user type some confirmative words, then call the function."
-      },
-      ...currentUserTempMessages
-    ]
-
-    console.log('messages: ', messages)
-    const chatResponse = await openaiClient.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages,
-      functions: functionDescriptions
-    })
-    const assistantMessage = chatResponse.choices[0].message
-
-    console.log('assistantMessage: ', assistantMessage)
-    // 確認是否有功能呼叫
-    if (!assistantMessage.function_call) {
-      currentUserTempMessages.push(assistantMessage)
-      console.log('outputByContent: ', currentUserTempMessages)
-      return currentUserTempMessages
-    }
-
-    const result = await callFunction(assistantMessage.function_call, Currentuser)
-    const outputMessage = {
-      role: 'function',
-      name: assistantMessage.function_call.name,
-      content: JSON.stringify(result)
-    }
-    currentUserTempMessages = []
-    return outputMessage
-  }
-}
 
 async function handleGetExpenses (year, month, day, user) {
   try {
@@ -166,7 +121,7 @@ async function handleGetExpenses (year, month, day, user) {
 async function handleGetExpensesByMonth (year, month, user) {
   try {
     const result = await new Promise((resolve, reject) => {
-      expenseServices.getExpenses({ query: { year, month, user } }, (err, data) => {
+      expenseServices.getExpensesByMonth({ query: { year, month, user } }, (err, data) => {
         if (err) {
           reject(err)
         } else {
@@ -193,6 +148,49 @@ async function handlePostExpense (date, name, amount, categoryId, paymentId, com
     return result
   } catch (error) {
     console.error('postExpense出錯了：', error)
+  }
+}
+
+const aiController = {
+  userTempMessages: {},
+  processUserInput: async (userInput, Currentuser) => {
+    if (!aiController.userTempMessages[Currentuser.id]) {
+      aiController.userTempMessages[Currentuser.id] = []
+    }
+    console.log('userTempMessages', aiController.userTempMessages)
+    const currentUserTempMessages = aiController.userTempMessages[Currentuser.id]
+    currentUserTempMessages.push({ role: 'user', content: userInput })
+    const messages = [
+      {
+        role: 'system',
+        content:
+          "You're a cash-flow app assistant, you can search or create expenses. Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous. If the user's request is complete, confirm the function you're going to execute with the user first, if the user type some confirmative words, then call the function. If answering in Chinese, please use traditional Chinese."
+      },
+      ...currentUserTempMessages
+    ]
+    const chatResponse = await openaiClient.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages,
+      functions: functionDescriptions
+    })
+    const assistantMessage = chatResponse.choices[0].message
+    // 確認是否有功能呼叫
+    if (!assistantMessage.function_call) {
+      currentUserTempMessages.push(assistantMessage)
+      return currentUserTempMessages
+    }
+
+    const result = await callFunction(assistantMessage.function_call, Currentuser)
+    const outputMessage = {
+      role: 'function',
+      name: assistantMessage.function_call.name,
+      arguments: assistantMessage.function_call.arguments,
+      content: JSON.stringify(result)
+    }
+    currentUserTempMessages.splice(0)
+    console.log(assistantMessage.function_call.arguments)
+    console.log(outputMessage)
+    return outputMessage
   }
 }
 
