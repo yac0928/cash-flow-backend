@@ -8,7 +8,7 @@ const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const functionDescriptions = [
   {
     name: 'getExpenses',
-    description: 'Get expenses information',
+    description: 'Get expenses information on specific date',
     parameters: {
       type: 'object',
       properties: {
@@ -48,7 +48,7 @@ const functionDescriptions = [
   },
   {
     name: 'postExpense',
-    description: 'Post a new expense',
+    description: 'Post a new expense. Only one expense can be created at a time.',
     parameters: {
       type: 'object',
       properties: {
@@ -164,7 +164,7 @@ const aiController = {
       {
         role: 'system',
         content:
-          "You're a cash-flow app assistant, you can search or create expenses. Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous. If the user's request is complete, confirm the function you're going to execute with the user first, if the user type some confirmative words, then call the function. If answering in Chinese, please use traditional Chinese."
+          "You're a cash-flow app assistant, you can only do 3 things, which are searching expenses on specific date, searching expenses by month, post an expense at a time. Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous. If the user's request is complete, confirm the function you're going to execute with the user first, if the user type some confirmative words, then call the function. If answering in Chinese, please use traditional Chinese."
       },
       ...currentUserTempMessages
     ]
