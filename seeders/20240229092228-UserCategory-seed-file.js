@@ -6,7 +6,7 @@ module.exports = {
     const users = await queryInterface.sequelize.query('SELECT * FROM Users', {
       type: Sequelize.QueryTypes.SELECT
     })
-    const categories = await queryInterface.sequelize.query('SELECT * FROM Categories LIMIT 3', {
+    const categories = await queryInterface.sequelize.query('SELECT * FROM Categories LIMIT 4', {
       type: Sequelize.QueryTypes.SELECT
     })
 

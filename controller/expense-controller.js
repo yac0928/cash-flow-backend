@@ -15,46 +15,40 @@ const expenseController = {
   },
   getExpenses: (req, res, next) => {
     const { year, month, day, categoryId } = req.query
-    return Promise.all([
-      Expense.findAll({
-        where: {
-          userId: req.user.id,
-          date: {
-            [Op.eq]: new Date(Date.UTC(year, month - 1, day))
-          },
-          ...categoryId ? { categoryId } : {}
+    return Expense.findAll({
+      where: {
+        userId: req.user.id,
+        date: {
+          [Op.eq]: new Date(Date.UTC(year, month - 1, day))
         },
-        include: [Category]
-      }),
-      Category.findAll()
-    ])
-      .then(([expenses, categories]) => {
+        ...categoryId ? { categoryId } : {}
+      },
+      include: [Category]
+    })
+      .then(expenses => {
         const totalAmount = expenses.reduce((total, expense) => total + expense.amount, 0) // 前端處理user是否訂閱
-        res.json({ expenses, categories, categoryId, totalAmount })
+        res.json({ expenses, categoryId, totalAmount })
       })
       .catch(err => next(err))
   },
   getExpensesByMonth: (req, res, next) => {
     const { year, month, categoryId } = req.query
-    return Promise.all([
-      Expense.findAll({
-        where: {
-          userId: req.user.id,
-          date: {
-            [Op.and]: [
-              { [Op.gte]: new Date(Date.UTC(year, month - 1, 1)) },
-              { [Op.lt]: new Date(Date.UTC(year, month, 1)) }
-            ]
-          },
-          ...categoryId ? { categoryId } : {}
+    return Expense.findAll({
+      where: {
+        userId: req.user.id,
+        date: {
+          [Op.and]: [
+            { [Op.gte]: new Date(Date.UTC(year, month - 1, 1)) },
+            { [Op.lt]: new Date(Date.UTC(year, month, 1)) }
+          ]
         },
-        include: [Category]
-      }),
-      Category.findAll()
-    ])
-      .then(([expenses, categories]) => {
+        ...categoryId ? { categoryId } : {}
+      },
+      include: [Category]
+    })
+      .then(expenses => {
         const totalAmount = expenses.reduce((total, expense) => total + expense.amount, 0) // 前端處理user是否訂閱
-        res.json({ expenses, categories, categoryId, totalAmount })
+        res.json({ expenses, categoryId, totalAmount })
       })
       .catch(err => next(err))
   },
@@ -69,12 +63,11 @@ const expenseController = {
         throw new Error('You don\'t have permission to view this expense!')
       }
 
-      // 找到相同 group 的所有记录，但不包括当前的 expense
       const expenses = await Expense.findAll({
         where: {
           group: expense.group,
           userId: req.user.id,
-          id: { [Op.ne]: expense.id } // 排除当前 expense
+          id: { [Op.ne]: expense.id }
         },
         include: [Category, Payment]
       })
@@ -88,43 +81,30 @@ const expenseController = {
     const { eid } = req.params
     return Promise.all([
       Expense.findByPk(eid, { include: [Category, Payment] }),
-      Category.findAll({ raw: true }),
       Payment.findAll({ raw: true })
     ])
-      .then(([expense, categories, payments]) => {
+      .then(([expense, payments]) => {
         if (!expense) throw new Error('Expense didn\'t exist')
-        res.json({ expense, categories, payments })
+        res.json({ expense, payments })
       })
       .catch(err => next(err))
   },
   createExpense: (req, res, next) => {
-    return Promise.all([
-      Category.findAll({ raw: true }),
-      Payment.findAll({ raw: true })
-    ])
-      .then(([categories, payments]) => {
-        res.json({ categories, payments })
+    return Payment.findAll({ raw: true })
+      .then(payments => {
+        res.json({ payments })
       })
       .catch(err => next(err))
   },
   postExpense: (req, res, next) => {
     const { date, name, amount, categoryId, paymentId, paymentYears, paymentPerMonth, comment } = req.body
     const userId = req.user.id
-    const userSubLevel = req.user.Subscription.level
-    const groupId = uuidv4()
+    const group = uuidv4()
     if (!date) throw new Error('Date is required!')
     if (!name) throw new Error('Name is required!')
     if (amount === null || amount === undefined) throw new Error('Amount is required!') // tricky，(!amount)如果0會失敗
     if (!categoryId) throw new Error('Category is required!')
     if (!paymentId) throw new Error('PaymentId is required!')
-    // 如果沒訂閱||year===0，不用建group，且直接建立一個expense
-    let createGroup = false
-    if (userSubLevel !== 'none') {
-      if (paymentYears > 0) {
-        createGroup = true
-      }
-    }
-    const groupData = createGroup ? { group: groupId } : {}
     return Expense.create({
       date,
       name,
@@ -135,10 +115,10 @@ const expenseController = {
       paymentPerMonth,
       comment,
       userId, // 非必填，因為是已經定義的欄位
-      ...groupData
+      group
     })
       .then(newExpenses => {
-        if (createGroup === false) return res.json({ newExpenses })
+        if (paymentYears === 0 || (paymentYears === 1 && paymentPerMonth > 6)) return res.json({ newExpenses })
         return postNextFewYearsExpense(newExpenses, paymentYears)
           .then(newExpenses => {
             if (newExpenses) res.json({ newExpenses })
@@ -183,13 +163,10 @@ const expenseController = {
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
         if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to delete this expense!')
-        if (!expense.group) {
-          return expense.destroy()
-            .then(deletedExpenses => res.json({ deletedExpenses }))
-        }
         return Expense.findAll({
           where: {
-            group: expense.group, date: { [Op.gte]: expense.date }
+            group: expense.group,
+            date: { [Op.gte]: expense.date }
           }
         })
           .then(expenses => {

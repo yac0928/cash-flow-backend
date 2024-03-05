@@ -3,10 +3,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const names = ['Entertainment', 'Transportation', 'Education', 'Health', 'Sports']
-    const icons = ['fa-plane', 'fa-car', 'fa-book', 'fa-hospital', 'fa-dumbbell']
+    const categories = [
+      { name: 'Entertainment', icon: 'fa-plane' },
+      { name: 'Transportation', icon: 'fa-car' },
+      { name: 'Education', icon: 'fa-book' },
+      { name: 'Others', icon: 'fa-ellipsis' },
+      { name: 'Health', icon: 'fa-hospital' },
+      { name: 'Sports', icon: 'fa-dumbbell' }
+    ]
+    const names = categories.map(item => item.name)
+    const icons = categories.map(item => item.icon)
     await queryInterface.bulkInsert('Categories',
-      Array.from({ length: names.length }, (_, i) => ({
+      Array.from({ length: categories.length }, (_, i) => ({
         name: names[i],
         icon: icons[i],
         created_at: new Date(),

@@ -13,7 +13,6 @@ const postNextFewYearsExpense = async (baseExpense, years) => {
   for (let i = 0; i < amountOfExpenses; i++) {
     currMonth += paymentPerMonth
     if (currMonth <= 11) {
-      // 检查当前月份的天数是否超过了新日期的天数
       const daysInCurrMonth = new Date(currYear, currMonth + 1, 0).getDate()
       const newDate = baseExpense.date.getDate() > daysInCurrMonth ? daysInCurrMonth : baseExpense.date.getDate()
       currExpenseDate = new Date(Date.UTC(currYear, currMonth, newDate))
