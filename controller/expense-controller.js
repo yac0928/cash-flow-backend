@@ -2,16 +2,20 @@ const { Expense, Category, Payment } = require('../models')
 const { Op } = require('sequelize')
 const { v4: uuidv4 } = require('uuid')
 const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
+const { getOrSetCache } = require('../helpers/get-or-set-cache')
 
 const expenseController = {
-  getCalendar: (req, res, next) => {
-    return Expense.findAll({
-      where: {
-        userId: req.user.id
-      }
-    })
-      .then(expenses => res.json({ expenses }))
-      .catch(err => next(err))
+  getCalendar: async (req, res, next) => {
+    try {
+      const userId = req.user.id
+      const expenses = await getOrSetCache(`calendar/${userId}`, async () => {
+        const expenses = await Expense.findAll({ where: userId })
+        return expenses
+      })
+      res.json({ expenses })
+    } catch (error) {
+      next(error)
+    }
   },
   getExpenses: (req, res, next) => {
     const { year, month, day, categoryId } = req.query
