@@ -1,5 +1,11 @@
 const Redis = require('ioredis')
 
-const redisClient = new Redis(process.env.REDIS_URI)
+let redisClient
 
-module.exports = redisClient
+if (process.env.NODE_ENV === 'production') {
+  redisClient = new Redis(process.env.REDIS_URI)
+} else {
+  redisClient = new Redis()
+}
+
+module.exports = { redisClient }

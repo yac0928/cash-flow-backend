@@ -2,14 +2,14 @@ const { Expense, Category, Payment } = require('../models')
 const { Op } = require('sequelize')
 const { v4: uuidv4 } = require('uuid')
 const { postNextFewYearsExpense } = require('../helpers/post-expenses-helpers')
-const { getOrSetCache } = require('../helpers/get-or-set-cache')
+const { getOrSetCache, deleteCache } = require('../helpers/redis-helpers')
 
 const expenseController = {
   getCalendar: async (req, res, next) => {
     try {
       const userId = req.user.id
       const expenses = await getOrSetCache(`calendar/${userId}`, async () => {
-        const expenses = await Expense.findAll({ where: userId })
+        const expenses = await Expense.findAll({ where: { userId } })
         return expenses
       })
       res.json({ expenses })
@@ -122,10 +122,16 @@ const expenseController = {
       group
     })
       .then(newExpenses => {
-        if (paymentYears === 0 || (paymentYears === 1 && paymentPerMonth > 6)) return res.json({ newExpenses })
+        if (paymentYears === 0 || (paymentYears === 1 && paymentPerMonth > 6)) {
+          deleteCache(`calendar/${userId}`)
+          return res.json({ newExpenses })
+        }
         return postNextFewYearsExpense(newExpenses, paymentYears)
           .then(newExpenses => {
-            if (newExpenses) res.json({ newExpenses })
+            if (newExpenses) {
+              deleteCache(`calendar/${userId}`)
+              res.json({ newExpenses })
+            }
           })
       })
       .catch(err => next(err))
@@ -163,10 +169,11 @@ const expenseController = {
   },
   deleteExpense: (req, res, next) => {
     const { eid } = req.params
+    const userId = req.user.id
     return Expense.findByPk(eid)
       .then(expense => {
         if (!expense) throw new Error('The expense doesn\'t exist!')
-        if (expense.userId !== req.user.id) throw new Error('You don\'t have permission to delete this expense!')
+        if (expense.userId !== userId) throw new Error('You don\'t have permission to delete this expense!')
         return Expense.findAll({
           where: {
             group: expense.group,
@@ -177,7 +184,10 @@ const expenseController = {
             const deletedPromises = expenses.map(e => e.destroy())
             return Promise.all(deletedPromises)
           })
-          .then(deletedExpenses => res.json({ deletedExpenses }))
+          .then(deletedExpenses => {
+            deleteCache(`calendar/${userId}`)
+            res.json({ deletedExpenses })
+          })
           .catch(err => next(err))
       })
   }

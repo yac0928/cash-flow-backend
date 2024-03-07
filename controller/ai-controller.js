@@ -1,8 +1,5 @@
 const OpenAI = require('openai')
 const expenseServices = require('../services/expenseServices')
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
-}
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const functionDescriptions = [

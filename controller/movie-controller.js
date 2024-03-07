@@ -1,6 +1,6 @@
 const { Movie, Screening } = require('../models')
 const { postMovies, postScreenings } = require('../utils/movieUtils')
-const { getOrSetCache } = require('../helpers/get-or-set-cache')
+const { getOrSetCache, deleteCache } = require('../helpers/redis-helpers')
 const movieController = {
   getMovies: async (req, res, next) => {
     try {
@@ -17,6 +17,7 @@ const movieController = {
     try {
       const movies = await postMovies()
       const screenings = await postScreenings()
+      deleteCache('movies')
       res.json({ movies, screenings })
     } catch (err) {
       next(err)

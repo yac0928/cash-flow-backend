@@ -1,4 +1,4 @@
-const redisClient = require('../services/redisClient')
+const { redisClient } = require('../services/redisClient')
 
 const DEFAULT_EXPIRATION_INTERVAL = 3600
 
@@ -14,6 +14,13 @@ function getOrSetCache (key, cb) {
   })
 }
 
+function deleteCache (key) {
+  redisClient.del(key, (err, reply) => {
+    if (err) throw err
+  })
+}
+
 module.exports = {
-  getOrSetCache
+  getOrSetCache,
+  deleteCache
 }
